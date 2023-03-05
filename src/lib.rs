@@ -1,3 +1,4 @@
+#[cfg(feature = "window")]
 pub mod window;
 
 use std::fs::File;
@@ -25,7 +26,7 @@ pub enum DrawTarget {
 }
 
 pub trait TSurface {
-    fn draw(&self,ctx:Vec<DrawTarget>);
+    fn draw(&mut self,ctx:Vec<DrawTarget>);
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -56,7 +57,7 @@ impl<'a> ImageSurface<'a> {
 
 
 impl TSurface for ImageSurface<'_> {
-    fn draw(&self,ctx: Vec<DrawTarget>) {
+    fn draw(&mut self,ctx: Vec<DrawTarget>) {
         match self.image_type {
             #[cfg(feature = "png")]
             ImageType::Png => {
@@ -142,7 +143,7 @@ impl Azusa {
         self.ctx.len()
     }
 
-    pub fn draw<T:TSurface>(&self,surface:T) {
+    pub fn draw<T:TSurface>(&self,surface:&mut T) {
         surface.draw(self.ctx.to_vec());
     }
 }

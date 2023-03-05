@@ -1,44 +1,63 @@
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use crate::{DrawTarget, TSurface};
+mod dx2d;
 
-pub struct WindowSurface<T:HasRawWindowHandle> {
-    handle: T
+#[cfg(feature = "window")]
+use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+
+use crate::{Color, DrawTarget, TSurface};
+
+#[cfg(feature = "window")]
+#[cfg(target_os = "windows")]
+use windows::Win32::Foundation::HWND;
+
+pub trait Backend {
+    fn begin(&mut self);
+    fn clear(&mut self,color: Color);
+    fn end(&mut self);
 }
 
-impl<T:HasRawWindowHandle> WindowSurface<T> {
-    pub fn new(handle: T) -> Self {
-        Self {
-            handle
-        }
+pub struct WindowSurface {
+    backend: Box<dyn Backend>
+}
+
+impl WindowSurface {
+    pub fn new(handle: &impl HasRawWindowHandle) -> Result<Self,()> {
+        let handle = handle.raw_window_handle();
+        let backend = Box::new(match handle {
+            RawWindowHandle::UiKit(_) => return Err(()),
+            RawWindowHandle::AppKit(_) => return Err(()),
+            RawWindowHandle::Orbital(_) => return Err(()),
+            RawWindowHandle::Xlib(_) => return Err(()),
+            RawWindowHandle::Xcb(_) => return Err(()),
+            RawWindowHandle::Wayland(_) => return Err(()),
+            RawWindowHandle::Drm(_) => return Err(()),
+            RawWindowHandle::Gbm(_) => return Err(()),
+            RawWindowHandle::Win32(handle) => {
+                dx2d::WindowsBackend::new(HWND(handle.hwnd as isize)).unwrap()
+            },
+            RawWindowHandle::WinRt(_) => return Err(()),
+            RawWindowHandle::Web(_) => return Err(()),
+            RawWindowHandle::AndroidNdk(_) => return Err(()),
+            RawWindowHandle::Haiku(_) => return Err(()),
+            _ => return Err(()),
+        });
+
+        Ok(Self {
+            backend
+        })
     }
 }
 
-impl<T:HasRawWindowHandle> TSurface for WindowSurface<T> {
-    fn draw(&self, ctx: Vec<DrawTarget>) {
-        let raw_window_handle = self.handle.raw_window_handle();
-
-        match raw_window_handle {
-            RawWindowHandle::UiKit(_) => {}
-            RawWindowHandle::AppKit(_) => {}
-            RawWindowHandle::Orbital(_) => {}
-            RawWindowHandle::Xlib(_) => {}
-            RawWindowHandle::Xcb(_) => {}
-            RawWindowHandle::Wayland(_) => {}
-            RawWindowHandle::Drm(_) => {}
-            RawWindowHandle::Gbm(_) => {}
-            RawWindowHandle::Win32(handle) => {
-                for i in ctx {
-                    match i {
-                        DrawTarget::Clear(_) => {}
-                        DrawTarget::Rectangle(_, _, _, _) => {}
-                    }
+impl TSurface for WindowSurface {
+    fn draw(&mut self, ctx: Vec<DrawTarget>) {
+        self.backend.begin();
+        for i in ctx {
+            match i {
+                DrawTarget::Clear(color) => {
+                    self.backend.clear(color);
                 }
+                DrawTarget::Rectangle(_, _, _, _) => {}
             }
-            RawWindowHandle::WinRt(_) => {}
-            RawWindowHandle::Web(_) => {}
-            RawWindowHandle::AndroidNdk(_) => {}
-            RawWindowHandle::Haiku(_) => {}
-            _ => {}
         }
+        self.backend.end();
     }
 }
