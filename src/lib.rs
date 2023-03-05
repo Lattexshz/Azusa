@@ -1,3 +1,5 @@
+pub mod window;
+
 use std::fs::File;
 use std::io::BufWriter;
 
