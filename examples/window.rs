@@ -5,7 +5,8 @@ use winit::{
     event_loop::EventLoop,
     window::WindowBuilder,
 };
-use azusa::{Azusa, ImageSurface};
+use azusa::{Azusa, Color, ImageSurface};
+use azusa::window::WindowSurface;
 
 fn main() {
     let event_loop = EventLoop::new();
@@ -16,7 +17,7 @@ fn main() {
         .build(&event_loop)
         .unwrap();
 
-    let surface = ImageSurface::new(500.0,500.0,"sample");
+    let mut surface = WindowSurface::new(&window).unwrap();
     let mut azusa = Azusa::new();
 
     event_loop.run(move |event, _, control_flow| {
@@ -29,7 +30,8 @@ fn main() {
             } if window_id == window.id() => control_flow.set_exit(),
             Event::MainEventsCleared => {
                 window.request_redraw();
-                azusa.draw(surface);
+                azusa.clear(Color::Blue);
+                azusa.draw(&mut surface);
             }
             _ => (),
         }
