@@ -1,11 +1,11 @@
+use crate::window::Backend;
 use crate::{Color, Vec4};
 #[cfg(target_os = "windows")]
-#[cfg(feature= "window")]
+#[cfg(feature = "window")]
 use windows::{
     core::*, Foundation::Numerics::*, Win32::Foundation::*, Win32::Graphics::Direct2D::Common::*,
     Win32::Graphics::Direct2D::*, Win32::UI::WindowsAndMessaging::*,
 };
-use crate::window::Backend;
 
 pub struct WindowsBackend {
     handle: HWND,
@@ -66,7 +66,6 @@ impl WindowsBackend {
     }
 }
 
-
 fn create_target(hwnd: HWND, factory: &ID2D1Factory1) -> (ID2D1HwndRenderTarget, u32, u32) {
     let mut rect = RECT::default();
 
@@ -115,7 +114,7 @@ fn create_factory() -> Result<ID2D1Factory1> {
             &options,
             std::mem::transmute(&mut result),
         )
-            .map(|()| result.unwrap())
+        .map(|()| result.unwrap())
     }
 }
 
@@ -130,14 +129,24 @@ impl Backend for WindowsBackend {
     fn clear(&mut self, color: Color) {
         let color = Vec4::from(color);
         unsafe {
-            self.target.Clear(&D2D1_COLOR_F { r: color.0 as f32, g: color.1 as f32, b: color.2 as f32, a: color.3 as f32 });
+            self.target.Clear(&D2D1_COLOR_F {
+                r: color.0 as f32,
+                g: color.1 as f32,
+                b: color.2 as f32,
+                a: color.3 as f32,
+            });
         }
     }
 
     fn rectangle(&mut self, color: Color, x: f32, y: f32, width: f32, height: f32) {
         unsafe {
             let color = Vec4::from(color);
-            let color = D2D1_COLOR_F { r: (color.0/255.0) as f32, g: (color.1/255.0) as f32, b: (color.2/255.0) as f32, a: (color.3/255.0) as f32 };
+            let color = D2D1_COLOR_F {
+                r: (color.0 / 255.0) as f32,
+                g: (color.1 / 255.0) as f32,
+                b: (color.2 / 255.0) as f32,
+                a: (color.3 / 255.0) as f32,
+            };
 
             let properties = D2D1_BRUSH_PROPERTIES {
                 opacity: color.a,

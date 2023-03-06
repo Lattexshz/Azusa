@@ -1,8 +1,11 @@
+use std::fs::File;
+use std::io::BufWriter;
+
 #[cfg(feature = "window")]
 pub mod window;
 
-use std::fs::File;
-use std::io::BufWriter;
+
+
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Color {
@@ -21,49 +24,49 @@ pub enum Color {
     Black,
     Navy,
     Teal,
-    Maroon
+    Maroon,
 }
 
 impl From<Color> for Vec4 {
     fn from(value: Color) -> Self {
         match value {
-            Color::White => Vec4(255.0,255.0,255.0,255.0),
-            Color::Olive => Vec4(128.0,128.0,0.0,255.0),
-            Color::Yellow => Vec4(255.0,255.0,0.0,255.0),
-            Color::Fuchsia => Vec4(255.0,0.0,255.0,255.0),
-            Color::Silver => Vec4(192.0,192.0,192.0,192.0),
-            Color::Aqua => Vec4(0.0,255.0,255.0,255.0),
-            Color::Lime => Vec4(0.0,255.0,0.0,255.0),
-            Color::Red => Vec4(255.0,0.0,0.0,255.0),
-            Color::Gray => Vec4(128.0,128.0,128.0,255.0),
-            Color::Blue => Vec4(0.0,0.0,255.0,255.0),
-            Color::Green => Vec4(0.0,128.0,0.0,255.0),
-            Color::Purple => Vec4(128.0,0.0,128.0,255.0),
-            Color::Black => Vec4(0.0,0.0,0.0,255.0),
-            Color::Navy => Vec4(0.0,0.0,128.0,255.0),
-            Color::Teal => Vec4(0.0,128.0,128.0,255.0),
-            Color::Maroon => Vec4(128.0,0.0,0.0,255.0)
+            Color::White => Vec4(255.0, 255.0, 255.0, 255.0),
+            Color::Olive => Vec4(128.0, 128.0, 0.0, 255.0),
+            Color::Yellow => Vec4(255.0, 255.0, 0.0, 255.0),
+            Color::Fuchsia => Vec4(255.0, 0.0, 255.0, 255.0),
+            Color::Silver => Vec4(192.0, 192.0, 192.0, 192.0),
+            Color::Aqua => Vec4(0.0, 255.0, 255.0, 255.0),
+            Color::Lime => Vec4(0.0, 255.0, 0.0, 255.0),
+            Color::Red => Vec4(255.0, 0.0, 0.0, 255.0),
+            Color::Gray => Vec4(128.0, 128.0, 128.0, 255.0),
+            Color::Blue => Vec4(0.0, 0.0, 255.0, 255.0),
+            Color::Green => Vec4(0.0, 128.0, 0.0, 255.0),
+            Color::Purple => Vec4(128.0, 0.0, 128.0, 255.0),
+            Color::Black => Vec4(0.0, 0.0, 0.0, 255.0),
+            Color::Navy => Vec4(0.0, 0.0, 128.0, 255.0),
+            Color::Teal => Vec4(0.0, 128.0, 128.0, 255.0),
+            Color::Maroon => Vec4(128.0, 0.0, 0.0, 255.0),
         }
     }
 }
 
-struct Vec4(f64,f64,f64,f64);
+struct Vec4(f64, f64, f64, f64);
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum DrawTarget {
     Clear(Color),
-    Rectangle(Color,u32,u32,u32,u32)
+    Rectangle(Color, u32, u32, u32, u32),
 }
 
 pub trait TSurface {
-    fn draw(&mut self,ctx:Vec<DrawTarget>);
+    fn draw(&mut self, ctx: Vec<DrawTarget>);
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ImageType {
     #[cfg(feature = "png")]
     Png,
-    None
+    None,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -71,35 +74,33 @@ pub struct ImageSurface<'a> {
     width: f64,
     height: f64,
     name: &'a str,
-    image_type: ImageType
+    image_type: ImageType,
 }
 
 impl<'a> ImageSurface<'a> {
-    pub fn new(width:f64,height:f64,name:&'a str,image_type: ImageType) -> Self {
+    pub fn new(width: f64, height: f64, name: &'a str, image_type: ImageType) -> Self {
         Self {
             width,
             height,
             name,
-            image_type
+            image_type,
         }
     }
 
-    pub fn resize(&mut self,width:f64,height:f64) {
+    pub fn resize(&mut self, width: f64, height: f64) {
         self.width = width;
         self.height = height;
     }
 }
 
-
 impl TSurface for ImageSurface<'_> {
-    fn draw(&mut self,ctx: Vec<DrawTarget>) {
+    fn draw(&mut self, ctx: Vec<DrawTarget>) {
         match self.image_type {
             #[cfg(feature = "png")]
             ImageType::Png => {
-
                 // Initialize png encoder
 
-                let path = format!("{}.png",self.name);
+                let path = format!("{}.png", self.name);
                 let file = File::create(path).unwrap();
                 let w = &mut BufWriter::new(file);
 
@@ -128,29 +129,27 @@ impl TSurface for ImageSurface<'_> {
 
                 let mut writer = encoder.write_header().unwrap();
 
-                let mut data:Vec<u8> = vec![];
+                let mut data: Vec<u8> = vec![];
                 for i in ctx {
                     match i {
                         DrawTarget::Clear(color) => {
                             let color = Vec4::from(color);
-                            for _ in 0..(self.width as u32*self.height as u32) {
+                            for _ in 0..(self.width as u32 * self.height as u32) {
                                 data.push(color.0 as u8);
                                 data.push(color.1 as u8);
                                 data.push(color.2 as u8);
                                 data.push(color.3 as u8);
                             }
                         }
-                        DrawTarget::Rectangle(color,x,y,width,height) => {
-
+                        DrawTarget::Rectangle(color, x, y, width, height) => {
                             if data.len() == 0 {
-                                for _ in 0..(self.width as u32*self.height as u32) {
+                                for _ in 0..(self.width as u32 * self.height as u32) {
                                     data.push(0);
                                     data.push(0);
                                     data.push(0);
                                     data.push(0);
                                 }
                             }
-
 
                             let color = Vec4::from(color);
 
@@ -159,11 +158,11 @@ impl TSurface for ImageSurface<'_> {
                             let mut count = 0;
                             let mut rgba = 3;
 
-                            for i in 0..(self.width as u32*self.height as u32)*4 {
+                            for i in 0..(self.width as u32 * self.height as u32) * 4 {
                                 count += 1;
                                 xc += 1;
-                                if xc/4 >= x && xc/4 <= (x+width)-1 {
-                                    if yc >= y+1 && yc <= (y+height) {
+                                if xc / 4 >= x && xc / 4 <= (x + width) - 1 {
+                                    if yc >= y + 1 && yc <= (y + height) {
                                         match rgba {
                                             0 => {
                                                 data[i as usize] = color.0 as u8;
@@ -174,7 +173,7 @@ impl TSurface for ImageSurface<'_> {
                                                 rgba = 2;
                                             }
                                             2 => {
-                                                data[i as usize] = color.2 as u8;;
+                                                data[i as usize] = color.2 as u8;
                                                 rgba = 3;
                                             }
                                             3 => {
@@ -186,12 +185,11 @@ impl TSurface for ImageSurface<'_> {
                                     }
                                 }
 
-                                if xc as f64 == self.width*4.0 {
+                                if xc as f64 == self.width * 4.0 {
                                     yc += 1;
                                     xc = 0;
                                     rgba = 3;
                                 }
-
                             }
                         }
                     }
@@ -201,14 +199,13 @@ impl TSurface for ImageSurface<'_> {
             }
             ImageType::None => {}
         }
-
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Azusa {
     ctx: Vec<DrawTarget>,
-    ctx_color: Color
+    ctx_color: Color,
 }
 
 impl Azusa {
@@ -219,7 +216,7 @@ impl Azusa {
         }
     }
 
-    pub fn set_source_color(&mut self,color: Color) {
+    pub fn set_source_color(&mut self, color: Color) {
         self.ctx_color = color;
     }
 
@@ -228,11 +225,12 @@ impl Azusa {
         self.ctx.push(DrawTarget::Clear(self.ctx_color));
     }
 
-    pub fn rectangle(&mut self,x:u32,y:u32,width:u32,height:u32) {
-        self.ctx.push(DrawTarget::Rectangle(self.ctx_color,x,y,width,height));
+    pub fn rectangle(&mut self, x: u32, y: u32, width: u32, height: u32) {
+        self.ctx
+            .push(DrawTarget::Rectangle(self.ctx_color, x, y, width, height));
     }
 
-    pub fn draw<T:TSurface>(&self,surface:&mut T) {
+    pub fn draw<T: TSurface>(&self, surface: &mut T) {
         surface.draw(self.ctx.to_vec());
     }
 }
