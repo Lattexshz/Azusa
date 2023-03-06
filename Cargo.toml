@@ -16,5 +16,6 @@ png = { version = "0.17.7", optional = true }
 [target."cfg(windows)".dependencies]
 winapi = { version = "0.3.9", features = ["winuser","windef","wingdi"], optional = true }
 
+gdiplus-sys2 = "0.1.1"
 [dev-dependencies]
 winit = "0.28.2"
