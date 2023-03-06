@@ -130,7 +130,6 @@ impl Backend for WindowsBackend {
     fn clear(&mut self, color: Color) {
         let color = Vec4::from(color);
         unsafe {
-            println!("Clear");
             self.target.Clear(&D2D1_COLOR_F { r: color.0 as f32, g: color.1 as f32, b: color.2 as f32, a: color.3 as f32 });
         }
     }

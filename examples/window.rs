@@ -5,7 +5,7 @@ use winit::{
     event_loop::EventLoop,
     window::WindowBuilder,
 };
-use azusa::{Azusa, Color, ImageSurface};
+use azusa::{Azusa, Color, ImageSurface, ImageType};
 use azusa::window::WindowSurface;
 
 fn main() {
@@ -18,6 +18,7 @@ fn main() {
         .unwrap();
 
     let mut surface = WindowSurface::new(&window).unwrap();
+    let mut png = ImageSurface::new(0.0,0.0,"A fantastic window",ImageType::Png);
     let mut azusa = Azusa::new();
 
     event_loop.run(move |event, _, control_flow| {
@@ -28,9 +29,24 @@ fn main() {
                 event: WindowEvent::CloseRequested,
                 window_id,
             } if window_id == window.id() => control_flow.set_exit(),
+            Event::WindowEvent {
+                event: WindowEvent::Resized(size),
+                ..
+            }=> {
+                png.resize(size.width as f64, size.height as f64);
+            }
+            Event::WindowEvent {
+                event: WindowEvent::ReceivedCharacter(c),
+                ..
+            } => {
+                if c == 's' {
+                    azusa.draw(&mut png);
+                }
+            }
             Event::MainEventsCleared => {
                 window.request_redraw();
-                azusa.clear(Color::Blue);
+                azusa.set_source_color(Color::Fuchsia);
+                azusa.clear();
                 azusa.draw(&mut surface);
             }
             _ => (),

@@ -55,7 +55,7 @@ impl TSurface for WindowSurface {
                 DrawTarget::Clear(color) => {
                     self.backend.clear(color);
                 }
-                DrawTarget::Rectangle(_, _, _, _) => {}
+                DrawTarget::Rectangle(_, _, _, _, _) => {}
             }
         }
         self.backend.end();
