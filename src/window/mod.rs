@@ -1,3 +1,4 @@
+#[cfg(target_os = "windows")]
 mod dx2d;
 
 #[cfg(feature = "window")]
@@ -32,6 +33,7 @@ impl WindowSurface {
             RawWindowHandle::Wayland(_) => return Err(()),
             RawWindowHandle::Drm(_) => return Err(()),
             RawWindowHandle::Gbm(_) => return Err(()),
+            #[cfg(target_os = "windows")]
             RawWindowHandle::Win32(handle) => {
                 dx2d::WindowsBackend::new(HWND(handle.hwnd as isize)).unwrap()
             },
