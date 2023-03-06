@@ -5,6 +5,7 @@ use winit::{
     event_loop::EventLoop,
     window::WindowBuilder,
 };
+use winit::dpi::LogicalSize;
 use azusa::{Azusa, Color, ImageSurface, ImageType};
 use azusa::window::WindowSurface;
 
@@ -13,7 +14,7 @@ fn main() {
 
     let window = WindowBuilder::new()
         .with_title("A fantastic window!")
-        .with_inner_size(winit::dpi::LogicalSize::new(128.0, 128.0))
+        .with_inner_size(winit::dpi::LogicalSize::new(520.0,520.0))
         .build(&event_loop)
         .unwrap();
 
@@ -33,7 +34,7 @@ fn main() {
                 event: WindowEvent::Resized(size),
                 ..
             }=> {
-                png.resize(size.width as f64, size.height as f64);
+                png.resize((size.width-130) as f64, (size.height-130) as f64);
             }
             Event::WindowEvent {
                 event: WindowEvent::ReceivedCharacter(c),
@@ -47,6 +48,8 @@ fn main() {
                 window.request_redraw();
                 azusa.set_source_color(Color::Fuchsia);
                 azusa.clear();
+                azusa.set_source_color(Color::Navy);
+                azusa.rectangle(20,20,150,150);
                 azusa.draw(&mut surface);
             }
             _ => (),

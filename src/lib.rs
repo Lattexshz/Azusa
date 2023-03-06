@@ -185,7 +185,7 @@ impl TSurface for ImageSurface<'_> {
                                         }
                                     }
                                 }
-                                
+
                                 if xc as f64 == self.width*4.0 {
                                     yc += 1;
                                     xc = 0;
