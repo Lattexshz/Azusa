@@ -1,14 +1,9 @@
 #[cfg(target_os = "windows")]
-mod dx2d;
+mod gdi;
 
 #[cfg(feature = "window")]
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-
 use crate::{Color, DrawTarget, TSurface};
-
-#[cfg(feature = "window")]
-#[cfg(target_os = "windows")]
-use windows::Win32::Foundation::HWND;
 
 pub trait Backend {
     fn begin(&mut self);
@@ -35,7 +30,7 @@ impl WindowSurface {
             RawWindowHandle::Gbm(_) => return Err(()),
             #[cfg(target_os = "windows")]
             RawWindowHandle::Win32(handle) => {
-                dx2d::WindowsBackend::new(HWND(handle.hwnd as isize)).unwrap()
+                gdi::GDIBackend::new(handle.hwnd)
             }
             RawWindowHandle::WinRt(_) => return Err(()),
             RawWindowHandle::Web(_) => return Err(()),
