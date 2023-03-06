@@ -129,7 +129,6 @@ impl TSurface for ImageSurface<'_> {
                 let mut writer = encoder.write_header().unwrap();
 
                 let mut data:Vec<u8> = vec![];
-
                 for i in ctx {
                     match i {
                         DrawTarget::Clear(color) => {
@@ -141,7 +140,60 @@ impl TSurface for ImageSurface<'_> {
                                 data.push(color.3 as u8);
                             }
                         }
-                        DrawTarget::Rectangle(_, _, _, _, _) => {}
+                        DrawTarget::Rectangle(color,x,y,width,height) => {
+
+                            if data.len() == 0 {
+                                for _ in 0..(self.width as u32*self.height as u32) {
+                                    data.push(0);
+                                    data.push(0);
+                                    data.push(0);
+                                    data.push(0);
+                                }
+                            }
+
+
+                            let color = Vec4::from(color);
+
+                            let mut xc = 0;
+                            let mut yc = 1;
+                            let mut count = 0;
+                            let mut rgba = 3;
+
+                            for i in 0..(self.width as u32*self.height as u32)*4 {
+                                count += 1;
+                                xc += 1;
+                                if xc/4 >= x && xc/4 <= (x+width)-1 {
+                                    if yc >= y+1 && yc <= (y+height) {
+                                        match rgba {
+                                            0 => {
+                                                data[i as usize] = color.0 as u8;
+                                                rgba = 1;
+                                            }
+                                            1 => {
+                                                data[i as usize] = color.1 as u8;
+                                                rgba = 2;
+                                            }
+                                            2 => {
+                                                data[i as usize] = color.2 as u8;;
+                                                rgba = 3;
+                                            }
+                                            3 => {
+                                                data[i as usize] = color.3 as u8;
+                                                rgba = 0;
+                                            }
+                                            _ => {}
+                                        }
+                                    }
+                                }
+
+                                if xc as f64 == self.width*4.0 {
+                                    yc += 1;
+                                    xc = 0;
+                                    rgba = 3;
+                                }
+
+                            }
+                        }
                     }
                 }
 

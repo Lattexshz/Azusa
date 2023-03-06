@@ -12,6 +12,7 @@ use windows::Win32::Foundation::HWND;
 pub trait Backend {
     fn begin(&mut self);
     fn clear(&mut self,color: Color);
+    fn rectangle(&mut self,color: Color,x:f32,y:f32,width:f32,height:f32);
     fn end(&mut self);
 }
 
@@ -55,7 +56,9 @@ impl TSurface for WindowSurface {
                 DrawTarget::Clear(color) => {
                     self.backend.clear(color);
                 }
-                DrawTarget::Rectangle(_, _, _, _, _) => {}
+                DrawTarget::Rectangle(color, x, y, width, height) => {
+                    self.backend.rectangle(color, x as f32, y as f32, width as f32, height as f32);
+                }
             }
         }
         self.backend.end();

@@ -134,6 +134,32 @@ impl Backend for WindowsBackend {
         }
     }
 
+    fn rectangle(&mut self, color: Color, x: f32, y: f32, width: f32, height: f32) {
+        unsafe {
+            let color = Vec4::from(color);
+            let color = D2D1_COLOR_F { r: (color.0/255.0) as f32, g: (color.1/255.0) as f32, b: (color.2/255.0) as f32, a: (color.3/255.0) as f32 };
+
+            let properties = D2D1_BRUSH_PROPERTIES {
+                opacity: color.a,
+                transform: Matrix3x2::identity(),
+            };
+
+            let brush = &self
+                .target
+                .CreateSolidColorBrush(&color, &properties)
+                .unwrap();
+
+            let rect = D2D_RECT_F {
+                left: x,
+                right: x + width,
+                top: y,
+                bottom: y + height,
+            };
+
+            self.target.FillRectangle(&rect, brush);
+        }
+    }
+
     fn end(&mut self) {
         unsafe {
             self.target
