@@ -4,9 +4,6 @@ use std::io::BufWriter;
 #[cfg(feature = "window")]
 pub mod window;
 
-
-
-
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Color {
     White,

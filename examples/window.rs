@@ -2,7 +2,7 @@
 
 use azusa::window::WindowSurface;
 use azusa::{Azusa, Color, ImageSurface, ImageType};
-use winit::dpi::LogicalSize;
+
 use winit::{
     event::{Event, WindowEvent},
     event_loop::EventLoop,
@@ -46,10 +46,10 @@ fn main() {
             }
             Event::MainEventsCleared => {
                 window.request_redraw();
-                azusa.set_source_color(Color::Fuchsia);
+                azusa.set_source_color(Color::White);
                 azusa.clear();
-                azusa.set_source_color(Color::Navy);
-                azusa.rectangle(20, 20, 150, 150);
+                azusa.set_source_color(Color::Lime);
+                azusa.rectangle(20, 20, 480, 480);
                 azusa.draw(&mut surface);
             }
             _ => (),
