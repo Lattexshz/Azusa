@@ -22,7 +22,7 @@ struct Vec4(f64,f64,f64,f64);
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum DrawTarget {
     Clear(Color),
-    Rectangle(u32,u32,u32,u32)
+    Rectangle(Color,u32,u32,u32,u32)
 }
 
 pub trait TSurface {
@@ -120,7 +120,8 @@ impl TSurface for ImageSurface<'_> {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Azusa {
-    ctx: Vec<DrawTarget>
+    ctx: Vec<DrawTarget>,
+    ctx_color: Color
 }
 
 impl Azusa {
@@ -130,17 +131,17 @@ impl Azusa {
         }
     }
 
-    pub fn clear(&mut self,color: Color) {
+    pub fn set_source_color(&mut self,color: Color) {
+        self.color = color;
+    }
+
+    pub fn clear(&mut self) {
         self.ctx.clear();
-        self.ctx.push(DrawTarget::Clear(color));
+        self.ctx.push(DrawTarget::Clear(self.color));
     }
 
     pub fn rectangle(&mut self,x:u32,y:u32,width:u32,height:u32) {
-        self.ctx.push(DrawTarget::Rectangle(x,y,width,height));
-    }
-
-    pub fn len(&self) -> usize {
-        self.ctx.len()
+        self.ctx.push(DrawTarget::Rectangle(self.color,x,y,width,height));
     }
 
     pub fn draw<T:TSurface>(&self,surface:&mut T) {
