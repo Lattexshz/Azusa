@@ -7,7 +7,7 @@ fn main() {
     azusa.set_source_color(Color::Blue);
     azusa.clear();
     azusa.set_source_color(Color::Navy);
-    azusa.rectangle(5, 5, 90, 90);
+    azusa.rectangle(0, 5, 90, 90);
 
     azusa.draw(&mut surface);
 }
