@@ -91,18 +91,24 @@ impl Backend for GDIBackend {
     }
 
     fn rectangle(&mut self, color: Color, x: f32, y: f32, width: f32, height: f32) {
+        let color = Vec4::from(color);
+        let mut graphics = self.graphics.as_mut().unwrap();
+
         unsafe {
-            let color = Vec4::from(color);
-            let color = RGB(color.0 as u8,color.1 as u8,color.2 as u8);
+            let mut rect = RECT {
+                left: x as i32,
+                right: (130.0+width) as i32,
+                top: y as i32,
+                bottom: (height+130.0) as i32,
+            };
 
-            SetDCBrushColor(self.hdc, color);
-            SetDCPenColor(self.hdc, color);
-
-            SelectObject(self.hdc, GetStockObject(DC_PEN as c_int));
-            SelectObject(self.hdc, GetStockObject(DC_BRUSH as c_int));
-            Rectangle(self.hdc,10,5,100,100);
-
-            //Rectangle(self.hdc, x as i32, (x + width) as i32, y as i32, (y + height) as i32);
+            graphics
+                .with_brush(&mut SolidBrush::new(&gdiplus::Color::from((color.3 as u8,color.0 as u8,color.1 as u8,color.2 as u8))).unwrap())
+                .fill_rectangle(
+                    (rect.left as _, rect.top as _),
+                    rect.right as _,
+                    rect.bottom as _,
+                ).unwrap();
         }
     }
 
