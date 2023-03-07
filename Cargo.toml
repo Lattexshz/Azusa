@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-window = ["raw-window-handle","windows"]
+window = ["raw-window-handle","winapi"]
 png = ["dep:png"]
 
 [dependencies]
@@ -14,18 +14,8 @@ raw-window-handle = { version = "0.5.0", optional = true }
 png = { version = "0.17.7", optional = true }
 
 [target."cfg(windows)".dependencies]
-windows = {version = "0.38.0", features = [
-    "Foundation_Numerics",
-    "Win32_Foundation",
-    "Win32_Graphics_Direct2D_Common",
-    "Win32_Graphics_Direct3D",
-    "Win32_Graphics_Direct3D11",
-    "Win32_Graphics_Dxgi_Common",
-    "Win32_System_Performance",
-    "Win32_System_SystemInformation",
-    "Win32_UI_Animation",
-    "Win32_UI_WindowsAndMessaging",
-], optional = true }
+winapi = { version = "0.3.9", features = ["winuser","windef","wingdi"], optional = true }
 
+gdiplus = "0.0.2"
 [dev-dependencies]
 winit = "0.28.2"

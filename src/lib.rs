@@ -47,6 +47,7 @@ impl From<Color> for Vec4 {
     }
 }
 
+#[derive(Debug)]
 struct Vec4(f64, f64, f64, f64);
 
 #[derive(Copy, Clone, Debug, PartialEq)]
