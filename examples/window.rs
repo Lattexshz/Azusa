@@ -29,7 +29,10 @@ fn main() {
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 window_id,
-            } if window_id == window.id() => control_flow.set_exit(),
+            } if window_id == window.id() => {
+                println!("Window closed");
+                control_flow.set_exit()
+            },
             Event::WindowEvent {
                 event: WindowEvent::Resized(size),
                 ..
@@ -44,12 +47,10 @@ fn main() {
                     azusa.draw(&mut png);
                 }
             }
-            Event::MainEventsCleared => {
+            Event::RedrawEventsCleared => {
                 window.request_redraw();
-                azusa.set_source_color(Color::White);
+                azusa.set_source_color(Color::Navy);
                 azusa.clear();
-                azusa.set_source_color(Color::Lime);
-                azusa.rectangle(20, 20, 480, 480);
                 azusa.draw(&mut surface);
             }
             _ => (),
