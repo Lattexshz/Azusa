@@ -154,13 +154,19 @@ impl TSurface for ImageSurface<'_> {
                             let mut xc = 0;
                             let mut yc = 1;
                             let mut count = 0;
-                            let mut rgba = 3;
+                            let mut rgba = 0;
 
                             for i in 0..(self.width as u32 * self.height as u32) * 4 {
                                 count += 1;
                                 xc += 1;
                                 if xc / 4 >= x && xc / 4 <= (x + width) - 1 {
                                     if yc >= y + 1 && yc <= (y + height) {
+                                        let i = if x == 0 {
+                                            i-1
+                                        }else {
+                                            i
+                                        };
+
                                         match rgba {
                                             0 => {
                                                 data[i as usize] = color.0 as u8;
