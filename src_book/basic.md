@@ -29,4 +29,5 @@ fn main() {
 ```
 
 It is drawn like this  
-![output](https://raw.githubusercontent.com/Lattexshz/Azusa/main/sample.png)
+
+![output](img/sample.png)
