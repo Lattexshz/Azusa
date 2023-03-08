@@ -98,6 +98,8 @@ impl TSurface for ImageSurface<'_> {
             ImageType::Png => {
                 // Initialize png encoder
 
+                let mut png = immo::png::Png::new(self.width as u32, self.height as u32);
+
                 let path = format!("{}.png", self.name);
                 let file = File::create(path).unwrap();
                 let w = &mut BufWriter::new(file);
@@ -105,101 +107,23 @@ impl TSurface for ImageSurface<'_> {
                 let mut encoder = png::Encoder::new(w, self.width as u32, self.height as u32); // Width is 2 pixels and height is 1.
                 encoder.set_color(png::ColorType::Rgba);
                 encoder.set_depth(png::BitDepth::Eight);
-                // Adding text chunks to the header
-                encoder
-                    .add_text_chunk(
-                        "Testing tEXt".to_string(),
-                        "This is a tEXt chunk that will appear before the IDAT chunks.".to_string(),
-                    )
-                    .unwrap();
-                encoder
-                    .add_ztxt_chunk(
-                        "Testing zTXt".to_string(),
-                        "This is a zTXt chunk that is compressed in the png file.".to_string(),
-                    )
-                    .unwrap();
-                encoder
-                    .add_itxt_chunk(
-                        "Testing iTXt".to_string(),
-                        "iTXt chunks support all of UTF8. Example: हिंदी.".to_string(),
-                    )
-                    .unwrap();
 
                 let mut writer = encoder.write_header().unwrap();
 
-                let mut data: Vec<u8> = vec![];
                 for i in ctx {
                     match i {
                         DrawTarget::Clear(color) => {
                             let color = Vec4::from(color);
-                            for _ in 0..(self.width as u32 * self.height as u32) {
-                                data.push(color.0 as u8);
-                                data.push(color.1 as u8);
-                                data.push(color.2 as u8);
-                                data.push(color.3 as u8);
-                            }
+                            png.clear((color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8));
                         }
                         DrawTarget::Rectangle(color, x, y, width, height) => {
-                            if data.len() == 0 {
-                                for _ in 0..(self.width as u32 * self.height as u32) {
-                                    data.push(0);
-                                    data.push(0);
-                                    data.push(0);
-                                    data.push(0);
-                                }
-                            }
-
                             let color = Vec4::from(color);
-
-                            let mut xc = 0;
-                            let mut yc = 1;
-                            let mut count = 0;
-                            let mut rgba = 0;
-
-                            for i in 0..(self.width as u32 * self.height as u32) * 4 {
-                                count += 1;
-                                xc += 1;
-                                if xc / 4 >= x && xc / 4 <= (x + width) - 1 {
-                                    if yc >= y + 1 && yc <= (y + height) {
-                                        let i = if x == 0 {
-                                            i-1
-                                        }else {
-                                            i
-                                        };
-
-                                        match rgba {
-                                            0 => {
-                                                data[i as usize] = color.0 as u8;
-                                                rgba = 1;
-                                            }
-                                            1 => {
-                                                data[i as usize] = color.1 as u8;
-                                                rgba = 2;
-                                            }
-                                            2 => {
-                                                data[i as usize] = color.2 as u8;
-                                                rgba = 3;
-                                            }
-                                            3 => {
-                                                data[i as usize] = color.3 as u8;
-                                                rgba = 0;
-                                            }
-                                            _ => {}
-                                        }
-                                    }
-                                }
-
-                                if xc as f64 == self.width * 4.0 {
-                                    yc += 1;
-                                    xc = 0;
-                                    rgba = 3;
-                                }
-                            }
+                            png.rectangle(x,y,width,height,(color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8)).unwrap()
                         }
                     }
                 }
 
-                writer.write_image_data(&data).unwrap();
+                writer.write_image_data(png.as_slice()).unwrap();
             }
             ImageType::None => {}
         }
