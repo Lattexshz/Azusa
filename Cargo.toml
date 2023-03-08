@@ -7,11 +7,12 @@ edition = "2021"
 
 [features]
 window = ["raw-window-handle","winapi"]
-png = ["dep:png"]
+png = ["immo","dep:png"]
 
 [dependencies]
 raw-window-handle = { version = "0.5.0", optional = true }
-png = { version = "0.17.7", optional = true }
+png = { version = "0.17.7", optional = true}
+immo = { path = "immo", version = "0.1.0", optional = true }
 
 [target."cfg(windows)".dependencies]
 winapi = { version = "0.3.9", features = ["winuser","windef","wingdi"], optional = true }
