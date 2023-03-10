@@ -1,5 +1,10 @@
+#[macro_use]
+extern crate log;
+
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::BufWriter;
+use immo::error::ImageError;
 
 #[cfg(feature = "window")]
 pub mod window;
@@ -56,7 +61,7 @@ pub enum DrawTarget {
     Rectangle(Color, u32, u32, u32, u32),
 }
 
-pub trait TSurface {
+pub trait Surface {
     fn draw(&mut self, ctx: Vec<DrawTarget>);
 }
 
@@ -91,7 +96,7 @@ impl<'a> ImageSurface<'a> {
     }
 }
 
-impl TSurface for ImageSurface<'_> {
+impl Surface for ImageSurface<'_> {
     fn draw(&mut self, ctx: Vec<DrawTarget>) {
         match self.image_type {
             #[cfg(feature = "png")]
@@ -118,7 +123,12 @@ impl TSurface for ImageSurface<'_> {
                         }
                         DrawTarget::Rectangle(color, x, y, width, height) => {
                             let color = Vec4::from(color);
-                            png.rectangle(x,y,width,height,(color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8)).unwrap()
+                            match png.fill_rectangle(x,y,width,height,(color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8)) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    error!("{}",e);
+                                }
+                            }
                         }
                     }
                 }
@@ -141,6 +151,7 @@ pub struct Azusa {
 
 impl Azusa {
     pub fn new() -> Self {
+        info!("Azusa context has been created");
         Self {
             ctx: vec![],
             ctx_color: Color::Black,
@@ -168,7 +179,7 @@ impl Azusa {
             .push(DrawTarget::Rectangle(self.ctx_color, self.ctx_x,self.ctx_y, width, height));
     }
 
-    pub fn draw<T: TSurface>(&self, surface: &mut T) {
+    pub fn draw<T: Surface>(&self, surface: &mut T) {
         surface.draw(self.ctx.to_vec());
     }
 }

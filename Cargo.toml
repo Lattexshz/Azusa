@@ -12,7 +12,8 @@ png = ["immo","dep:png"]
 [dependencies]
 raw-window-handle = { version = "0.5.0", optional = true }
 png = { version = "0.17.7", optional = true}
-immo = { path = "immo", version = "0.1.0", optional = true }
+immo = { version = "0.1.0", optional = true }
+log = "0.4.17"
 
 [target."cfg(windows)".dependencies]
 winapi = { version = "0.3.9", features = ["winuser","windef","wingdi"], optional = true }

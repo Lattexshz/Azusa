@@ -3,7 +3,7 @@ mod gdi;
 
 #[cfg(feature = "window")]
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use crate::{Color, DrawTarget, TSurface};
+use crate::{Color, DrawTarget, Surface};
 
 pub trait Backend {
     fn begin(&mut self);
@@ -43,7 +43,7 @@ impl WindowSurface {
     }
 }
 
-impl TSurface for WindowSurface {
+impl Surface for WindowSurface {
     fn draw(&mut self, ctx: Vec<DrawTarget>) {
         self.backend.begin();
         for i in ctx {
