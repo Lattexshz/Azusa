@@ -52,7 +52,8 @@ fn main() {
                 azusa.set_source_color(Color::Navy);
                 azusa.clear();
                 azusa.set_source_color(Color::Red);
-                azusa.rectangle(10,10,520,520);
+                azusa.move_to(10,10);
+                azusa.rectangle(520,520);
                 azusa.draw(&mut surface);
             }
             _ => (),
