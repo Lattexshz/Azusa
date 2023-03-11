@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate log;
 
-
-
 use std::fs::File;
 use std::io::BufWriter;
 
@@ -63,6 +61,7 @@ pub enum DrawTarget {
 
 pub trait Surface {
     fn draw(&mut self, ctx: Vec<DrawTarget>);
+    fn get_client_size(&self) -> (u32, u32);
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -143,6 +142,10 @@ impl Surface for ImageSurface<'_> {
             }
             ImageType::None => {}
         }
+    }
+
+    fn get_client_size(&self) -> (u32, u32) {
+        (self.width as u32, self.height as u32)
     }
 }
 

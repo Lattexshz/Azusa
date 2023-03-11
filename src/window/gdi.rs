@@ -1,21 +1,16 @@
 use crate::window::Backend;
 use crate::{Color, Vec4};
 
-
 use std::ffi::{c_int, c_void};
 
 use winapi::shared::windef::{
     DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, HBITMAP, HDC, HGDIOBJ, HWND, RECT,
 };
 use winapi::um::wingdi::{
-    BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC,
-    DeleteObject, GetStockObject, Rectangle, SelectObject, SetDCBrushColor,
-    SetDCPenColor, DC_BRUSH, DC_PEN, RGB, SRCCOPY,
+    BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetStockObject,
+    Rectangle, SelectObject, SetDCBrushColor, SetDCPenColor, DC_BRUSH, DC_PEN, RGB, SRCCOPY,
 };
-use winapi::um::winuser::{
-    GetClientRect, GetDC, ReleaseDC,
-    SetProcessDpiAwarenessContext, LPPAINTSTRUCT,
-};
+use winapi::um::winuser::{GetClientRect, GetDC, ReleaseDC, SetProcessDpiAwarenessContext};
 
 pub struct GDIBackend {
     hwnd: HWND,
@@ -125,5 +120,12 @@ impl Backend for GDIBackend {
 
             ReleaseDC(self.hwnd, self.dc);
         }
+    }
+
+    fn get_client_size(&self) -> (u32, u32) {
+        (
+            self.rect.right.try_into().unwrap(),
+            self.rect.bottom.try_into().unwrap(),
+        )
     }
 }

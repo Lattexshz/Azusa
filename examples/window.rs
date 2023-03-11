@@ -1,7 +1,7 @@
 #![allow(clippy::single_match)]
 
 use azusa::window::WindowSurface;
-use azusa::{Azusa, Color, ImageSurface, ImageType};
+use azusa::{Azusa, Color, ImageSurface, ImageType, Surface};
 
 use winit::{
     event::{Event, WindowEvent},
@@ -29,21 +29,20 @@ fn main() {
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 window_id,
-            } if window_id == window.id() => {
-                println!("Window closed");
-                control_flow.set_exit()
-            }
+            } if window_id == window.id() => control_flow.set_exit(),
             Event::WindowEvent {
-                event: WindowEvent::Resized(size),
+                event: WindowEvent::Resized(_size),
                 ..
-            } => {
-                png.resize((size.width - 130) as f64, (size.height - 130) as f64);
-            }
+            } => {}
             Event::WindowEvent {
                 event: WindowEvent::ReceivedCharacter(c),
                 ..
             } => {
                 if c == 's' {
+                    let (w, h) = surface.get_client_size();
+                    if w != 0 && h != 0 {
+                        png.resize(w as f64, h as f64);
+                    }
                     azusa.draw(&mut png);
                 }
             }

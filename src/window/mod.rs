@@ -10,6 +10,8 @@ pub trait Backend {
     fn clear(&mut self, color: Color);
     fn rectangle(&mut self, color: Color, x: f32, y: f32, width: f32, height: f32);
     fn end(&mut self);
+
+    fn get_client_size(&self) -> (u32, u32);
 }
 
 pub struct WindowSurface {
@@ -56,5 +58,9 @@ impl Surface for WindowSurface {
             }
         }
         self.backend.end();
+    }
+
+    fn get_client_size(&self) -> (u32, u32) {
+        self.backend.get_client_size()
     }
 }
