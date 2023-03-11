@@ -1,10 +1,10 @@
 #[macro_use]
 extern crate log;
 
-use std::fmt::{Display, Formatter};
+
+
 use std::fs::File;
 use std::io::BufWriter;
-use immo::error::ImageError;
 
 #[cfg(feature = "window")]
 pub mod window;
@@ -123,10 +123,16 @@ impl Surface for ImageSurface<'_> {
                         }
                         DrawTarget::Rectangle(color, x, y, width, height) => {
                             let color = Vec4::from(color);
-                            match png.fill_rectangle(x,y,width,height,(color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8)) {
+                            match png.fill_rectangle(
+                                x,
+                                y,
+                                width,
+                                height,
+                                (color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8),
+                            ) {
                                 Ok(_) => {}
                                 Err(e) => {
-                                    error!("{}",e);
+                                    error!("{}", e);
                                 }
                             }
                         }
@@ -146,7 +152,7 @@ pub struct Azusa {
     ctx_color: Color,
 
     ctx_x: u32,
-    ctx_y: u32
+    ctx_y: u32,
 }
 
 impl Azusa {
@@ -169,14 +175,19 @@ impl Azusa {
         self.ctx.push(DrawTarget::Clear(self.ctx_color));
     }
 
-    pub fn move_to(&mut self,x:u32,y:u32) {
+    pub fn move_to(&mut self, x: u32, y: u32) {
         self.ctx_x = x;
         self.ctx_y = y;
     }
 
     pub fn rectangle(&mut self, width: u32, height: u32) {
-        self.ctx
-            .push(DrawTarget::Rectangle(self.ctx_color, self.ctx_x,self.ctx_y, width, height));
+        self.ctx.push(DrawTarget::Rectangle(
+            self.ctx_color,
+            self.ctx_x,
+            self.ctx_y,
+            width,
+            height,
+        ));
     }
 
     pub fn draw<T: Surface>(&self, surface: &mut T) {

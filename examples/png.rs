@@ -15,8 +15,8 @@ fn main() {
 
     // Reserves the drawing of a rectangle
     // Usage: rectangle(x,y,width,height)
-    azusa.move_to(5,5);
-    azusa.rectangle( 90, 90);
+    azusa.move_to(5, 5);
+    azusa.rectangle(90, 90);
 
     // Performs the drawing scheduled for the context
     azusa.draw(&mut surface);

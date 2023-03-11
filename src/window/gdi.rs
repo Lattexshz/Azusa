@@ -1,126 +1,129 @@
-use std::ffi::{c_int, c_void};
-use std::ptr::{null, null_mut};
-use gdiplus::{color, GdiPlus, Graphics, Pen, SolidBrush};
-use gdiplus::enums::SmoothingMode;
-use winapi::shared::windef::{DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, HDC, HWND, RECT};
-use winapi::um::wingdi::{BitBlt, CreateCompatibleDC, DC_BRUSH, DC_PEN, GetStockObject, Rectangle, RGB, SelectObject, SetDCBrushColor, SetDCPenColor, SwapBuffers};
-use winapi::um::winuser::{BeginPaint, EndPaint, GetClientRect, GetDC, GetSystemMetrics, LPPAINTSTRUCT, PAINTSTRUCT, ReleaseDC, SendMessageA, SetProcessDpiAwarenessContext, SM_CXSCREEN, SM_CYSCREEN, WM_ERASEBKGND};
 use crate::window::Backend;
 use crate::{Color, Vec4};
+
+
+use std::ffi::{c_int, c_void};
+
+use winapi::shared::windef::{
+    DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, HBITMAP, HDC, HGDIOBJ, HWND, RECT,
+};
+use winapi::um::wingdi::{
+    BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC,
+    DeleteObject, GetStockObject, Rectangle, SelectObject, SetDCBrushColor,
+    SetDCPenColor, DC_BRUSH, DC_PEN, RGB, SRCCOPY,
+};
+use winapi::um::winuser::{
+    GetClientRect, GetDC, ReleaseDC,
+    SetProcessDpiAwarenessContext, LPPAINTSTRUCT,
+};
 
 pub struct GDIBackend {
     hwnd: HWND,
     hdc: HDC,
-    ps: LPPAINTSTRUCT,
-    gdiplus: GdiPlus,
-    graphics: Option<Graphics>
+    dc: HDC,
+
+    bitmap: HBITMAP,
+    obmp: HGDIOBJ,
+
+    rect: RECT,
 }
 
 impl GDIBackend {
     /// Create a new backend
     pub fn new(hwnd: *mut c_void) -> Self {
-
-
         unsafe {
             SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         }
 
-        let gdiplus = GdiPlus::startup(None, None).unwrap();
-
         Self {
             hwnd: hwnd as HWND,
             hdc: 0 as HDC,
-            ps: unsafe { std::mem::zeroed() },
-            gdiplus,
-            graphics: None
+            dc: 0 as HDC,
+            bitmap: 0 as HBITMAP,
+            obmp: 0 as HGDIOBJ,
+            rect: RECT {
+                left: 0,
+                top: 0,
+                right: 0,
+                bottom: 0,
+            },
         }
     }
 
     /// Regenerate Target (to accommodate window resizing)
-    fn update_target(&mut self) {
+    #[inline]
+    fn set_color(&mut self, color: Vec4) {
+        unsafe {
+            SetDCBrushColor(self.hdc, RGB(color.0 as u8, color.1 as u8, color.2 as u8));
+            SetDCPenColor(self.hdc, RGB(color.0 as u8, color.1 as u8, color.2 as u8));
 
+            SelectObject(self.hdc, GetStockObject(DC_PEN as c_int));
+            SelectObject(self.hdc, GetStockObject(DC_BRUSH as c_int));
+        }
     }
 }
 
 impl Backend for GDIBackend {
     fn begin(&mut self) {
         unsafe {
-            let mut ps = std::mem::zeroed();
-            self.hdc = BeginPaint(self.hwnd, &mut ps);
+            GetClientRect(self.hwnd, &mut self.rect);
 
-            let mut rect = std::mem::zeroed();
-            GetClientRect(self.hwnd, &mut rect);
-
-            rect.left -= 1;
-            rect.top -= 1;
-            rect.right += 1;
-            rect.bottom += 1;
-
-            (|| -> gdiplus::Result<()> {
-                let mut graphics = Graphics::from_hdc(self.hdc)?;
-
-                graphics.set_smoothing_mode(SmoothingMode::AntiAlias)?;
-
-                self.graphics = Some(graphics);
-                Ok(())
-
-            })().unwrap();
+            self.dc = GetDC(self.hwnd);
+            self.hdc = CreateCompatibleDC(self.dc);
+            self.bitmap = CreateCompatibleBitmap(self.dc, self.rect.right, self.rect.bottom);
+            self.obmp = SelectObject(self.hdc, self.bitmap as HGDIOBJ);
         }
     }
 
     fn clear(&mut self, color: Color) {
         let color = Vec4::from(color);
-        let mut graphics = self.graphics.as_mut().unwrap();
 
         unsafe {
-            let mut rect = std::mem::zeroed();
-            GetClientRect(self.hwnd, &mut rect);
-
-            rect.left -= 1;
-            rect.top -= 1;
-            rect.right += 1;
-            rect.bottom += 1;
-            graphics
-                .with_brush(&mut SolidBrush::new(&gdiplus::Color::from((color.3 as u8,color.0 as u8,color.1 as u8,color.2 as u8))).unwrap())
-                .fill_rectangle(
-                    (rect.left as _, rect.top as _),
-                    rect.right as _,
-                    rect.bottom as _,
-                ).unwrap();
+            self.set_color(color);
+            Rectangle(
+                self.hdc,
+                self.rect.left,
+                self.rect.top,
+                self.rect.right,
+                self.rect.bottom,
+            );
         }
     }
 
     fn rectangle(&mut self, color: Color, x: f32, y: f32, width: f32, height: f32) {
         let color = Vec4::from(color);
-        let mut graphics = self.graphics.as_mut().unwrap();
-
         unsafe {
-            let mut rect = RECT {
+            let rect = RECT {
                 left: x as i32,
-                right: (130.0+width) as i32,
+                right: width as i32,
                 top: y as i32,
-                bottom: (height+130.0) as i32,
+                bottom: height as i32,
             };
 
-            graphics
-                .with_brush(&mut SolidBrush::new(&gdiplus::Color::from((color.3 as u8,color.0 as u8,color.1 as u8,color.2 as u8))).unwrap())
-                .fill_rectangle(
-                    (rect.left as _, rect.top as _),
-                    rect.right as _,
-                    rect.bottom as _,
-                ).unwrap();
+            self.set_color(color);
+            Rectangle(self.hdc, rect.left, rect.top, rect.right, rect.bottom);
         }
     }
 
     fn end(&mut self) {
         unsafe {
-            EndPaint(self.hwnd, self.ps);
-        }
-    }
-}
+            BitBlt(
+                self.dc,
+                self.rect.left,
+                self.rect.top,
+                self.rect.right,
+                self.rect.bottom,
+                self.hdc,
+                0,
+                0,
+                SRCCOPY,
+            );
+            SelectObject(self.hdc, self.obmp);
 
-impl Drop for GDIBackend {
-    fn drop(&mut self) {
-        self.gdiplus.shutdown();
+            DeleteDC(self.hdc);
+            DeleteObject(self.bitmap as HGDIOBJ);
+
+            ReleaseDC(self.hwnd, self.dc);
+        }
     }
 }

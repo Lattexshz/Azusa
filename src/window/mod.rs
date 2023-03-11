@@ -1,9 +1,9 @@
 #[cfg(target_os = "windows")]
 mod gdi;
 
+use crate::{Color, DrawTarget, Surface};
 #[cfg(feature = "window")]
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use crate::{Color, DrawTarget, Surface};
 
 pub trait Backend {
     fn begin(&mut self);
@@ -29,9 +29,7 @@ impl WindowSurface {
             RawWindowHandle::Drm(_) => return Err(()),
             RawWindowHandle::Gbm(_) => return Err(()),
             #[cfg(target_os = "windows")]
-            RawWindowHandle::Win32(handle) => {
-                gdi::GDIBackend::new(handle.hwnd)
-            }
+            RawWindowHandle::Win32(handle) => gdi::GDIBackend::new(handle.hwnd),
             RawWindowHandle::WinRt(_) => return Err(()),
             RawWindowHandle::Web(_) => return Err(()),
             RawWindowHandle::AndroidNdk(_) => return Err(()),
