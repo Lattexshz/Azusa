@@ -29,10 +29,10 @@ wasm-bindgen = { version = "0.2.84", optional = true}
 [dependencies.web-sys]
 version = "0.3.61"
 features = [
+    "console",
+    'CanvasRenderingContext2d',
+    'Document',
+    'Element',
     'HtmlCanvasElement',
-    'WebGlBuffer',
-    'WebGlProgram',
-    'WebGlRenderingContext',
-    'WebGlShader',
-    'WebGlUniformLocation',
+    'Window',
 ]

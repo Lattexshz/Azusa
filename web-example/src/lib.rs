@@ -3,13 +3,24 @@ use std::rc::Rc;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{window, HtmlCanvasElement, WebGlRenderingContext as GL, WebGlRenderingContext};
+use web_sys::{window, HtmlCanvasElement};
 use yew::{html, Component, Context, Html, NodeRef};
 
 use azusa::web::WebSurface;
+use azusa::Azusa;
+use azusa::Color;
 
 pub struct App {
     node_ref: NodeRef
+}
+
+impl App {
+    fn render_gl(&self,mut azusa: Azusa,surface:&mut WebSurface) {
+        azusa.set_source_color(Color::Navy);
+        azusa.clear();
+
+        azusa.draw(surface);
+    }
 }
 
 impl Component for App {
@@ -38,7 +49,9 @@ impl Component for App {
         }
 
         let canvas = self.node_ref.cast::<HtmlCanvasElement>().unwrap();
-        WebSurface::new(canvas);
+        let mut surface = WebSurface::new(canvas);
+        let mut azusa = Azusa::new();
+        self.render_gl(azusa,&mut surface);
     }
 }
 
