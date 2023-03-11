@@ -15,9 +15,12 @@ pub struct App {
 }
 
 impl App {
-    fn render_gl(&self,mut azusa: Azusa,surface:&mut WebSurface) {
+    fn render(&self,mut azusa: Azusa,surface:&mut WebSurface) {
         azusa.set_source_color(Color::Navy);
         azusa.clear();
+        azusa.set_source_color(Color::Red);
+        azusa.move_to(10, 10);
+        azusa.rectangle(50,50);
 
         azusa.draw(surface);
     }

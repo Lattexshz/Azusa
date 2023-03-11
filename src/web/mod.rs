@@ -3,8 +3,15 @@ use crate::Surface;
 use web_sys::{HtmlCanvasElement,CanvasRenderingContext2d as Context};
 use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
+use wasm_bindgen::prelude::*;
 use crate::DrawTarget;
 use crate::Vec4;
+
+#[wasm_bindgen]
+extern {
+    pub fn alert(s: &str);
+}
+
 
 pub struct WebSurface {
     canvas: HtmlCanvasElement,
@@ -36,13 +43,13 @@ impl Surface for WebSurface {
                     let color:Vec4 = Vec4::from(color);
                     self.ctx.set_fill_style(&JsValue::from_str(&format!("rgba({},{},{},{})",color.0 as u8,color.1 as u8,color.2 as u8,color.3 as u8,)));
                     self.ctx.rect(0.0,0.0,300.0,150.0);
-                    self.ctx.fill()
+                    self.ctx.fill();
                 }
                 DrawTarget::Rectangle(color, x, y, width, height) => {
                     let color:Vec4 = Vec4::from(color);
                     self.ctx.set_fill_style(&JsValue::from_str(&format!("rgba({},{},{},{})",color.0 as u8,color.1 as u8,color.2 as u8,color.3 as u8,)));
                     self.ctx.rect(x as f64,y as f64,width as f64,height as f64);
-                    self.ctx.fill()
+                    self.ctx.fill();
                 }
             }
         }
