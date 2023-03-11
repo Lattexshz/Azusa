@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
+web = ["wasm-bindgen"]
 window = ["raw-window-handle","winapi"]
 png = ["immo","dep:png"]
 
@@ -18,6 +19,20 @@ log = "0.4.17"
 [target."cfg(windows)".dependencies]
 winapi = { version = "0.3.9", features = ["winuser","windef","wingdi"], optional = true }
 
-gdiplus = "0.0.2"
 [dev-dependencies]
 winit = "0.28.2"
+
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2.84", optional = true}
+
+[dependencies.web-sys]
+version = "0.3.61"
+features = [
+    "console",
+    'CanvasRenderingContext2d',
+    'Document',
+    'Element',
+    'HtmlCanvasElement',
+    'Window',
+]
