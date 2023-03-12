@@ -109,6 +109,7 @@ pub enum DrawTarget {
 
 pub trait Surface {
     fn draw(&mut self, ctx: Vec<DrawTarget>);
+    /// Get surface size
     fn get_client_size(&self) -> (u32, u32);
 }
 
@@ -260,18 +261,22 @@ impl Azusa {
         }
     }
 
+    /// Retrieves the contents of a context
     pub fn get_ctx(&self) -> &[DrawTarget] {
         &self.ctx
     }
 
+    /// Specifies the color to use for the fill
     pub fn set_source_color(&mut self, color: Color) {
         self.ctx_color = color;
     }
 
+    /// Specify border color
     pub fn set_border_color(&mut self, color: Color) {
         self.ctx_border_color = color;
     }
 
+    /// Fills a surface with a specific color and clears the contents of the context.
     pub fn clear(&mut self) {
         self.ctx.clear();
         self.ctx.push(DrawTarget::Clear(self.ctx_color));
@@ -282,6 +287,7 @@ impl Azusa {
         self.ctx_y = y;
     }
 
+    /// Reserves the context to fill rectangle
     pub fn fill_rectangle(&mut self, width: u32, height: u32) {
         self.ctx.push(DrawTarget::FillRectangle(
             self.ctx_color,
@@ -293,6 +299,7 @@ impl Azusa {
         ));
     }
 
+    /// Reserves the context to draw rectangle
     pub fn draw_rectangle(&mut self, thickness: u32, width: u32, height: u32) {
         self.ctx.push(DrawTarget::DrawRectangle(
             self.ctx_color,
@@ -304,10 +311,12 @@ impl Azusa {
         ));
     }
 
+    /// Reserves the context to write text
     pub fn draw_text(&mut self,width:u32,height:u32,string: UString,info: FontInfo) {
         self.ctx.push(DrawTarget::DrawText(self.ctx_color,info,self.ctx_x,self.ctx_y,width,height,string));
     }
 
+    /// Writes to the surface passed as argument
     pub fn draw<T: Surface>(&self, surface: &mut T) {
         surface.draw(self.ctx.to_vec());
     }

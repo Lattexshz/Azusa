@@ -1,5 +1,6 @@
 # Azusa
 ## Rusty 2D graphic library
+![Logo](azusa.png)
 
 # Concept
 ## Context-based drawing management
