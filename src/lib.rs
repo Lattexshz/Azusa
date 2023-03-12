@@ -1,5 +1,3 @@
-use rand::Rng;
-
 #[macro_use]
 extern crate log;
 
@@ -11,8 +9,6 @@ pub mod window;
 
 #[cfg(feature = "web")]
 pub mod web;
-
-pub type Id = u32;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Color {
@@ -198,7 +194,6 @@ impl Surface for ImageSurface<'_> {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Azusa {
     ctx: Vec<DrawTarget>,
-    ctx_id: Vec<Id>,
     ctx_color: Color,
     ctx_border_color: Color,
 
@@ -211,7 +206,6 @@ impl Azusa {
         info!("Azusa context has been created");
         Self {
             ctx: vec![],
-            ctx_id: vec![],
             ctx_color: Color::Black,
             ctx_border_color: Color::Black,
             ctx_x: 0,
@@ -221,15 +215,6 @@ impl Azusa {
 
     pub fn get_ctx(&self) -> &[DrawTarget] {
         &self.ctx
-    }
-
-    #[cfg(feature = "unstable")]
-    pub fn get_ctx_mut(&mut self) -> &mut [DrawTarget] {
-        &mut self.ctx
-    }
-
-    pub fn get_id(&self) -> &[Id] {
-        &self.ctx_id
     }
 
     pub fn set_source_color(&mut self, color: Color) {
@@ -250,7 +235,7 @@ impl Azusa {
         self.ctx_y = y;
     }
 
-    pub fn fill_rectangle(&mut self, width: u32, height: u32) -> Id {
+    pub fn fill_rectangle(&mut self, width: u32, height: u32) {
         self.ctx.push(DrawTarget::FillRectangle(
             self.ctx_color,
             self.ctx_border_color,
@@ -259,10 +244,9 @@ impl Azusa {
             width,
             height,
         ));
-        gen_id()
     }
 
-    pub fn draw_rectangle(&mut self, thickness: u32, width: u32, height: u32) -> Id {
+    pub fn draw_rectangle(&mut self, thickness: u32, width: u32, height: u32) {
         self.ctx.push(DrawTarget::DrawRectangle(
             self.ctx_color,
             self.ctx_x,
@@ -271,15 +255,9 @@ impl Azusa {
             width,
             height,
         ));
-        gen_id()
     }
 
     pub fn draw<T: Surface>(&self, surface: &mut T) {
         surface.draw(self.ctx.to_vec());
     }
-}
-
-fn gen_id() -> Id {
-    let mut rng = rand::thread_rng();
-    rng.gen()
 }
