@@ -8,6 +8,7 @@ use winapi::shared::windef::{DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, HBITMAP
 use winapi::um::wingdi::{BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetStockObject, Rectangle, SelectObject, SetDCBrushColor, SetDCPenColor, DC_BRUSH, DC_PEN, RGB, SRCCOPY, SetBkColor, TRANSPARENT, SetBkMode, SetTextColor, CreateFontW, CLIP_DEFAULT_PRECIS, OUT_DEFAULT_PRECIS, DEFAULT_CHARSET, FW_REGULAR, FF_ROMAN, DEFAULT_QUALITY, FF_MODERN};
 use winapi::um::winuser::{DrawTextW, DT_WORD_ELLIPSIS, GetClientRect, GetDC, ReleaseDC, SetProcessDpiAwarenessContext};
 
+#[derive(Debug)]
 pub struct GDIBackend {
     hwnd: HWND,
     hdc: HDC,
