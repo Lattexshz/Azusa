@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate log;
 
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::BufWriter;
 
@@ -53,14 +54,57 @@ impl From<Color> for Vec4 {
     }
 }
 
+#[derive(Clone,PartialEq,Debug)]
+pub struct UString {
+    data: Vec<u16>
+}
+
+impl UString {
+    pub fn new(string: &str) -> Self {
+        Self {
+            data: string.encode_utf16().chain(std::iter::once(0)).collect::<Vec<u16>>()
+        }
+    }
+}
+
+impl From<String> for UString {
+    fn from(value: String) -> Self {
+        UString::new(&value)
+    }
+}
+
+impl Display for UString {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{}",String::from_utf16(self.data.as_slice()).unwrap())
+    }
+}
+
+#[derive(Clone,Debug,PartialEq)]
+pub struct FontInfo(pub(crate) u32,pub(crate) bool,pub(crate) bool);
+
+impl FontInfo {
+    pub fn new(px:u32,is_italic: bool,is_under_line: bool) -> Self {
+        Self {
+            0:px,
+            1: is_italic,
+            2: is_under_line
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 struct Vec4(f64, f64, f64, f64);
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum DrawTarget {
+    /// Clear(Color)
     Clear(Color),
+    /// FillRectangle(Color,BorderColor,x,y,width,height
     FillRectangle(Color, Color, u32, u32, u32, u32),
+    /// DrawRectangle(Color,x,y,width,height,thickness)
     DrawRectangle(Color, u32, u32, u32, u32, u32),
+    /// DrawText(Color,x,y,width,height,Text)
+    DrawText(Color,FontInfo,u32,u32,u32,u32,UString)
 }
 
 pub trait Surface {
@@ -177,6 +221,9 @@ impl Surface for ImageSurface<'_> {
                                 }
                             }
                         }
+                        DrawTarget::DrawText(color,info,x,y,width,height,string) => {
+
+                        }
                     }
                 }
 
@@ -255,6 +302,10 @@ impl Azusa {
             width,
             height,
         ));
+    }
+
+    pub fn draw_text(&mut self,width:u32,height:u32,string: UString,info: FontInfo) {
+        self.ctx.push(DrawTarget::DrawText(self.ctx_color,info,self.ctx_x,self.ctx_y,width,height,string));
     }
 
     pub fn draw<T: Surface>(&self, surface: &mut T) {
