@@ -1,7 +1,7 @@
 #[cfg(target_os = "windows")]
 mod gdi;
 
-use crate::{Color, DrawTarget, Surface, UString};
+use crate::{Color, DrawTarget, FontInfo, Surface, UString};
 #[cfg(feature = "window")]
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 
@@ -26,7 +26,7 @@ pub trait Backend {
         width: f32,
         height: f32,
     );
-    fn draw_text(&mut self,color: Color,string: UString,x:u32,y:u32,width:u32,height:u32);
+    fn draw_text(&mut self,color: Color,string: UString,info:FontInfo,x:u32,y:u32,width:u32,height:u32);
     fn end(&mut self);
 
     fn get_client_size(&self) -> (u32, u32);
@@ -89,8 +89,8 @@ impl Surface for WindowSurface {
                         height as f32,
                     );
                 }
-                DrawTarget::DrawText(color,x,y,width,height,string) => {
-                    self.backend.draw_text(color,string,x,y,width,height);
+                DrawTarget::DrawText(color,info,x,y,width,height,string) => {
+                    self.backend.draw_text(color,string,info,x,y,width,height);
                 }
             }
         }

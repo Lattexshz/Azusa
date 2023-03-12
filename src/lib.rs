@@ -79,6 +79,17 @@ impl Display for UString {
     }
 }
 
+#[derive(Clone,Debug,PartialEq)]
+pub struct FontInfo(pub(crate) u32);
+
+impl FontInfo {
+    pub fn new(px:u32) -> Self {
+        Self {
+            0:px
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 struct Vec4(f64, f64, f64, f64);
 
@@ -91,7 +102,7 @@ pub enum DrawTarget {
     /// DrawRectangle(Color,x,y,width,height,thickness)
     DrawRectangle(Color, u32, u32, u32, u32, u32),
     /// DrawText(Color,x,y,width,height,Text)
-    DrawText(Color,u32,u32,u32,u32,UString)
+    DrawText(Color,FontInfo,u32,u32,u32,u32,UString)
 }
 
 pub trait Surface {
@@ -208,7 +219,7 @@ impl Surface for ImageSurface<'_> {
                                 }
                             }
                         }
-                        DrawTarget::DrawText(color,x,y,width,height,string) => {
+                        DrawTarget::DrawText(color,info,x,y,width,height,string) => {
 
                         }
                     }
@@ -291,8 +302,8 @@ impl Azusa {
         ));
     }
 
-    pub fn draw_text(&mut self,width:u32,height:u32,string: UString) {
-        self.ctx.push(DrawTarget::DrawText(self.ctx_color,self.ctx_x,self.ctx_y,width,height,string));
+    pub fn draw_text(&mut self,width:u32,height:u32,string: UString,info: FontInfo) {
+        self.ctx.push(DrawTarget::DrawText(self.ctx_color,info,self.ctx_x,self.ctx_y,width,height,string));
     }
 
     pub fn draw<T: Surface>(&self, surface: &mut T) {
