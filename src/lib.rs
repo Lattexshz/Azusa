@@ -126,11 +126,27 @@ impl Surface for ImageSurface<'_> {
                         }
                         DrawTarget::FillRectangle(color,border_color, x, y, width, height) => {
                             let color = Vec4::from(color);
-                            match png.fill_rectangle(
+                            let border_color = Vec4::from(border_color);
+
+                            match png.draw_rectangle(
                                 x,
                                 y,
                                 width,
                                 height,
+                                    1,
+                                (border_color.0 as u8, border_color.1 as u8, border_color.2 as u8, border_color.3 as u8),
+                            ) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    error!("{}", e);
+                                }
+                            }
+
+                            match png.fill_rectangle(
+                                x+1,
+                                y+1,
+                                width-2,
+                                height-2,
                                 (color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8),
                             ) {
                                 Ok(_) => {}
