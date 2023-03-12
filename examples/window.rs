@@ -51,7 +51,8 @@ fn main() {
                 azusa.set_source_color(Color::White);
                 azusa.clear();
                 azusa.set_source_color(Color::Gray);
-                azusa.draw_text(UString::new("春はあけぼのようよう白くなりゆくやまぎは..."));
+                azusa.move_to(50,50);
+                azusa.draw_text(500,300,UString::new("春はあけぼのようよう白くなりゆくやまぎは..."));
                 azusa.draw(&mut surface);
             }
             _ => (),

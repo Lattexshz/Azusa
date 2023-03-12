@@ -67,6 +67,12 @@ impl UString {
     }
 }
 
+impl From<String> for UString {
+    fn from(value: String) -> Self {
+        UString::new(&value)
+    }
+}
+
 impl Display for UString {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f,"{}",String::from_utf16(self.data.as_slice()).unwrap())
@@ -78,10 +84,14 @@ struct Vec4(f64, f64, f64, f64);
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum DrawTarget {
+    /// Clear(Color)
     Clear(Color),
+    /// FillRectangle(Color,BorderColor,x,y,width,height
     FillRectangle(Color, Color, u32, u32, u32, u32),
+    /// DrawRectangle(Color,x,y,width,height,thickness)
     DrawRectangle(Color, u32, u32, u32, u32, u32),
-    DrawText(Color,UString)
+    /// DrawText(Color,x,y,width,height,Text)
+    DrawText(Color,u32,u32,u32,u32,UString)
 }
 
 pub trait Surface {
@@ -198,7 +208,7 @@ impl Surface for ImageSurface<'_> {
                                 }
                             }
                         }
-                        DrawTarget::DrawText(color,string) => {
+                        DrawTarget::DrawText(color,x,y,width,height,string) => {
 
                         }
                     }
@@ -281,8 +291,8 @@ impl Azusa {
         ));
     }
 
-    pub fn draw_text(&mut self,string: UString) {
-        self.ctx.push(DrawTarget::DrawText(self.ctx_color,string));
+    pub fn draw_text(&mut self,width:u32,height:u32,string: UString) {
+        self.ctx.push(DrawTarget::DrawText(self.ctx_color,self.ctx_x,self.ctx_y,width,height,string));
     }
 
     pub fn draw<T: Surface>(&self, surface: &mut T) {

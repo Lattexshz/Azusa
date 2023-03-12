@@ -150,17 +150,16 @@ impl Backend for GDIBackend {
         }
     }
 
-    fn draw_text(&mut self, color: Color,string: UString) {
+    fn draw_text(&mut self,color: Color,string: UString,x:u32,y:u32,width:u32,height:u32) {
         unsafe {
             let text_color = Vec4::from(color);
-            let color = Vec4::from(self.clear_color);
             SetBkMode(self.hdc,TRANSPARENT.try_into().unwrap());
             SetTextColor(self.hdc,RGB(text_color.0 as u8,text_color.1 as u8,text_color.2 as u8));
             DrawTextW(self.hdc, string.data.as_ptr(), -1, &mut RECT {
-                left: 0,
-                top: 0,
-                right: 300,
-                bottom: 300,
+                left: x as i32,
+                top: y as i32,
+                right: (width+x) as i32,
+                bottom: (height+y) as i32,
             }, DT_WORD_ELLIPSIS);
         }
     }
