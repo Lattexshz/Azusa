@@ -47,10 +47,10 @@ impl GDIBackend {
 
     /// Regenerate Target (to accommodate window resizing)
     #[inline]
-    fn set_color(&mut self, color: Vec4) {
+    fn set_color(&mut self, color: Vec4, border_color: Vec4) {
         unsafe {
             SetDCBrushColor(self.hdc, RGB(color.0 as u8, color.1 as u8, color.2 as u8));
-            SetDCPenColor(self.hdc, RGB(color.0 as u8, color.1 as u8, color.2 as u8));
+            SetDCPenColor(self.hdc, RGB(border_color.0 as u8, border_color.1 as u8, border_color.2 as u8));
 
             SelectObject(self.hdc, GetStockObject(DC_PEN as c_int));
             SelectObject(self.hdc, GetStockObject(DC_BRUSH as c_int));
@@ -74,7 +74,7 @@ impl Backend for GDIBackend {
         let color = Vec4::from(color);
 
         unsafe {
-            self.set_color(color);
+            self.set_color(color,color);
             Rectangle(
                 self.hdc,
                 self.rect.left,
@@ -85,8 +85,9 @@ impl Backend for GDIBackend {
         }
     }
 
-    fn rectangle(&mut self, color: Color, x: f32, y: f32, width: f32, height: f32) {
+    fn rectangle(&mut self, color: Color, border_color: Color,x: f32, y: f32, width: f32, height: f32) {
         let color = Vec4::from(color);
+        let border = Vec4::from(border_color);
         unsafe {
             let rect = RECT {
                 left: x as i32,
@@ -95,7 +96,7 @@ impl Backend for GDIBackend {
                 bottom: height as i32,
             };
 
-            self.set_color(color);
+            self.set_color(color,border);
             Rectangle(self.hdc, rect.left, rect.top, rect.right, rect.bottom);
         }
     }

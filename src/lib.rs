@@ -53,13 +53,13 @@ impl From<Color> for Vec4 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Copy,Clone,Debug)]
 struct Vec4(f64, f64, f64, f64);
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum DrawTarget {
     Clear(Color),
-    FillRectangle(Color, u32, u32, u32, u32),
+    FillRectangle(Color, Color,u32, u32, u32, u32),
     DrawRectangle(Color,u32,u32,u32,u32,u32)
 }
 
@@ -124,7 +124,7 @@ impl Surface for ImageSurface<'_> {
                             let color = Vec4::from(color);
                             png.clear((color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8));
                         }
-                        DrawTarget::FillRectangle(color, x, y, width, height) => {
+                        DrawTarget::FillRectangle(color,border_color, x, y, width, height) => {
                             let color = Vec4::from(color);
                             match png.fill_rectangle(
                                 x,
@@ -174,6 +174,7 @@ impl Surface for ImageSurface<'_> {
 pub struct Azusa {
     ctx: Vec<DrawTarget>,
     ctx_color: Color,
+    ctx_border_color: Color,
 
     ctx_x: u32,
     ctx_y: u32,
@@ -185,6 +186,7 @@ impl Azusa {
         Self {
             ctx: vec![],
             ctx_color: Color::Black,
+            ctx_border_color: Color::Black,
             ctx_x: 0,
             ctx_y: 0,
         }
@@ -192,6 +194,10 @@ impl Azusa {
 
     pub fn set_source_color(&mut self, color: Color) {
         self.ctx_color = color;
+    }
+
+    pub fn set_border_color(&mut self,color: Color) {
+        self.ctx_border_color = color;
     }
 
     pub fn clear(&mut self) {
@@ -207,6 +213,7 @@ impl Azusa {
     pub fn fill_rectangle(&mut self, width: u32, height: u32) {
         self.ctx.push(DrawTarget::FillRectangle(
             self.ctx_color,
+            self.ctx_border_color,
             self.ctx_x,
             self.ctx_y,
             width,
