@@ -8,7 +8,24 @@ use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 pub trait Backend {
     fn begin(&mut self);
     fn clear(&mut self, color: Color);
-    fn rectangle(&mut self, color: Color, border_color: Color,x: f32, y: f32, width: f32, height: f32);
+    fn fill_rectangle(
+        &mut self,
+        color: Color,
+        border_color: Color,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+    );
+    fn draw_rectangle(
+        &mut self,
+        color: Color,
+        thickness: u32,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+    );
     fn end(&mut self);
 
     fn get_client_size(&self) -> (u32, u32);
@@ -51,12 +68,25 @@ impl Surface for WindowSurface {
                 DrawTarget::Clear(color) => {
                     self.backend.clear(color);
                 }
-                DrawTarget::FillRectangle(color,border_color, x, y, width, height) => {
-                    self.backend
-                        .rectangle(color, border_color, x as f32, y as f32, width as f32, height as f32);
+                DrawTarget::FillRectangle(color, border_color, x, y, width, height) => {
+                    self.backend.fill_rectangle(
+                        color,
+                        border_color,
+                        x as f32,
+                        y as f32,
+                        width as f32,
+                        height as f32,
+                    );
                 }
-                DrawTarget::DrawRectangle(_,_,_,_,_,_) => {
-
+                DrawTarget::DrawRectangle(color, thickness, x, y, width, height) => {
+                    self.backend.draw_rectangle(
+                        color,
+                        thickness,
+                        x as f32,
+                        y as f32,
+                        width as f32,
+                        height as f32,
+                    );
                 }
             }
         }

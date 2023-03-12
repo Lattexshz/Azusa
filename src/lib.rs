@@ -53,14 +53,14 @@ impl From<Color> for Vec4 {
     }
 }
 
-#[derive(Copy,Clone,Debug)]
+#[derive(Copy, Clone, Debug)]
 struct Vec4(f64, f64, f64, f64);
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum DrawTarget {
     Clear(Color),
-    FillRectangle(Color, Color,u32, u32, u32, u32),
-    DrawRectangle(Color,u32,u32,u32,u32,u32)
+    FillRectangle(Color, Color, u32, u32, u32, u32),
+    DrawRectangle(Color, u32, u32, u32, u32, u32),
 }
 
 pub trait Surface {
@@ -124,7 +124,7 @@ impl Surface for ImageSurface<'_> {
                             let color = Vec4::from(color);
                             png.clear((color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8));
                         }
-                        DrawTarget::FillRectangle(color,border_color, x, y, width, height) => {
+                        DrawTarget::FillRectangle(color, border_color, x, y, width, height) => {
                             let color = Vec4::from(color);
                             let border_color = Vec4::from(border_color);
 
@@ -133,8 +133,13 @@ impl Surface for ImageSurface<'_> {
                                 y,
                                 width,
                                 height,
-                                    1,
-                                (border_color.0 as u8, border_color.1 as u8, border_color.2 as u8, border_color.3 as u8),
+                                1,
+                                (
+                                    border_color.0 as u8,
+                                    border_color.1 as u8,
+                                    border_color.2 as u8,
+                                    border_color.3 as u8,
+                                ),
                             ) {
                                 Ok(_) => {}
                                 Err(e) => {
@@ -143,10 +148,10 @@ impl Surface for ImageSurface<'_> {
                             }
 
                             match png.fill_rectangle(
-                                x+1,
-                                y+1,
-                                width-2,
-                                height-2,
+                                x + 1,
+                                y + 1,
+                                width - 2,
+                                height - 2,
                                 (color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8),
                             ) {
                                 Ok(_) => {}
@@ -156,7 +161,7 @@ impl Surface for ImageSurface<'_> {
                             }
                         }
 
-                        DrawTarget::DrawRectangle(color, thickness,x, y, width, height) => {
+                        DrawTarget::DrawRectangle(color, thickness, x, y, width, height) => {
                             let color = Vec4::from(color);
                             match png.draw_rectangle(
                                 x,
@@ -212,7 +217,7 @@ impl Azusa {
         self.ctx_color = color;
     }
 
-    pub fn set_border_color(&mut self,color: Color) {
+    pub fn set_border_color(&mut self, color: Color) {
         self.ctx_border_color = color;
     }
 
@@ -237,14 +242,14 @@ impl Azusa {
         ));
     }
 
-    pub fn draw_rectangle(&mut self,thickness:u32,width: u32,height: u32) {
+    pub fn draw_rectangle(&mut self, thickness: u32, width: u32, height: u32) {
         self.ctx.push(DrawTarget::DrawRectangle(
             self.ctx_color,
             self.ctx_x,
             self.ctx_y,
             thickness,
             width,
-            height
+            height,
         ));
     }
 

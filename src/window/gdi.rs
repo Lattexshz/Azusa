@@ -21,6 +21,7 @@ pub struct GDIBackend {
     obmp: HGDIOBJ,
 
     rect: RECT,
+    clear_color: Color,
 }
 
 impl GDIBackend {
@@ -42,6 +43,7 @@ impl GDIBackend {
                 right: 0,
                 bottom: 0,
             },
+            clear_color: Color::Black,
         }
     }
 
@@ -50,7 +52,14 @@ impl GDIBackend {
     fn set_color(&mut self, color: Vec4, border_color: Vec4) {
         unsafe {
             SetDCBrushColor(self.hdc, RGB(color.0 as u8, color.1 as u8, color.2 as u8));
-            SetDCPenColor(self.hdc, RGB(border_color.0 as u8, border_color.1 as u8, border_color.2 as u8));
+            SetDCPenColor(
+                self.hdc,
+                RGB(
+                    border_color.0 as u8,
+                    border_color.1 as u8,
+                    border_color.2 as u8,
+                ),
+            );
 
             SelectObject(self.hdc, GetStockObject(DC_PEN as c_int));
             SelectObject(self.hdc, GetStockObject(DC_BRUSH as c_int));
@@ -71,10 +80,11 @@ impl Backend for GDIBackend {
     }
 
     fn clear(&mut self, color: Color) {
+        self.clear_color = color;
         let color = Vec4::from(color);
 
         unsafe {
-            self.set_color(color,color);
+            self.set_color(color, color);
             Rectangle(
                 self.hdc,
                 self.rect.left,
@@ -85,7 +95,15 @@ impl Backend for GDIBackend {
         }
     }
 
-    fn rectangle(&mut self, color: Color, border_color: Color,x: f32, y: f32, width: f32, height: f32) {
+    fn fill_rectangle(
+        &mut self,
+        color: Color,
+        border_color: Color,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+    ) {
         let color = Vec4::from(color);
         let border = Vec4::from(border_color);
         unsafe {
@@ -96,7 +114,43 @@ impl Backend for GDIBackend {
                 bottom: height as i32,
             };
 
-            self.set_color(color,border);
+            self.set_color(color, border);
+            Rectangle(self.hdc, rect.left, rect.top, rect.right, rect.bottom);
+        }
+    }
+
+    fn draw_rectangle(
+        &mut self,
+        _color: Color,
+        _thickness: u32,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+    ) {
+        let color = Vec4::from(self.clear_color);
+        let border_color = Vec4::from(color);
+        unsafe {
+            let rect = RECT {
+                left: x as i32,
+                right: width as i32,
+                top: y as i32,
+                bottom: height as i32,
+            };
+
+            SetDCBrushColor(self.hdc, RGB(color.0 as u8, color.1 as u8, color.2 as u8));
+            SetDCPenColor(
+                self.hdc,
+                RGB(
+                    border_color.0 as u8,
+                    border_color.1 as u8,
+                    border_color.2 as u8,
+                ),
+            );
+
+            SelectObject(self.hdc, GetStockObject(DC_PEN as c_int));
+            SelectObject(self.hdc, GetStockObject(DC_BRUSH as c_int));
+
             Rectangle(self.hdc, rect.left, rect.top, rect.right, rect.bottom);
         }
     }
