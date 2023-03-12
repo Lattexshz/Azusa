@@ -213,6 +213,10 @@ impl Azusa {
         }
     }
 
+    pub fn get_ctx(&self) -> &[DrawTarget] {
+        &self.ctx
+    }
+
     pub fn set_source_color(&mut self, color: Color) {
         self.ctx_color = color;
     }
