@@ -32,7 +32,6 @@ pub trait Backend {
     fn get_client_size(&self) -> (u32, u32);
 }
 
-#[derive(Debug)]
 pub struct WindowSurface {
     backend: Box<dyn Backend>,
 }
