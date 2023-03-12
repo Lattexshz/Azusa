@@ -59,7 +59,8 @@ struct Vec4(f64, f64, f64, f64);
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum DrawTarget {
     Clear(Color),
-    Rectangle(Color, u32, u32, u32, u32),
+    FillRectangle(Color, u32, u32, u32, u32),
+    DrawRectangle(Color,u32,u32,u32,u32,u32)
 }
 
 pub trait Surface {
@@ -123,13 +124,30 @@ impl Surface for ImageSurface<'_> {
                             let color = Vec4::from(color);
                             png.clear((color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8));
                         }
-                        DrawTarget::Rectangle(color, x, y, width, height) => {
+                        DrawTarget::FillRectangle(color, x, y, width, height) => {
                             let color = Vec4::from(color);
                             match png.fill_rectangle(
                                 x,
                                 y,
                                 width,
                                 height,
+                                (color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8),
+                            ) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    error!("{}", e);
+                                }
+                            }
+                        }
+
+                        DrawTarget::DrawRectangle(color, thickness,x, y, width, height) => {
+                            let color = Vec4::from(color);
+                            match png.draw_rectangle(
+                                x,
+                                y,
+                                width,
+                                height,
+                                thickness,
                                 (color.0 as u8, color.1 as u8, color.2 as u8, color.3 as u8),
                             ) {
                                 Ok(_) => {}
@@ -186,13 +204,24 @@ impl Azusa {
         self.ctx_y = y;
     }
 
-    pub fn rectangle(&mut self, width: u32, height: u32) {
-        self.ctx.push(DrawTarget::Rectangle(
+    pub fn fill_rectangle(&mut self, width: u32, height: u32) {
+        self.ctx.push(DrawTarget::FillRectangle(
             self.ctx_color,
             self.ctx_x,
             self.ctx_y,
             width,
             height,
+        ));
+    }
+
+    pub fn draw_rectangle(&mut self,thickness:u32,width: u32,height: u32) {
+        self.ctx.push(DrawTarget::DrawRectangle(
+            self.ctx_color,
+            self.ctx_x,
+            self.ctx_y,
+            thickness,
+            width,
+            height
         ));
     }
 

@@ -20,7 +20,7 @@ impl App {
         azusa.clear();
         azusa.set_source_color(Color::Red);
         azusa.move_to(10, 10);
-        azusa.rectangle(50,50);
+        azusa.fill_rectangle(50, 50);
 
         azusa.draw(surface);
     }

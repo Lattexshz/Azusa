@@ -51,7 +51,7 @@ impl Surface for WindowSurface {
                 DrawTarget::Clear(color) => {
                     self.backend.clear(color);
                 }
-                DrawTarget::Rectangle(color, x, y, width, height) => {
+                DrawTarget::FillRectangle(color, x, y, width, height) => {
                     self.backend
                         .rectangle(color, x as f32, y as f32, width as f32, height as f32);
                 }
