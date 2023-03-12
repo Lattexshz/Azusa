@@ -1,7 +1,7 @@
 #![allow(clippy::single_match)]
 
 use azusa::window::WindowSurface;
-use azusa::{Azusa, Color, ImageSurface, ImageType, Surface};
+use azusa::{Azusa, Color, ImageSurface, ImageType, Surface, UString};
 
 use winit::{
     event::{Event, WindowEvent},
@@ -48,12 +48,10 @@ fn main() {
             }
             Event::RedrawEventsCleared => {
                 window.request_redraw();
-                azusa.set_source_color(Color::Navy);
+                azusa.set_source_color(Color::White);
                 azusa.clear();
-                azusa.set_source_color(Color::Red);
-                azusa.set_border_color(Color::Fuchsia);
-                azusa.move_to(10, 10);
-                azusa.draw_rectangle(1, 520, 520);
+                azusa.set_source_color(Color::Gray);
+                azusa.draw_text(UString::new("春はあけぼのようよう白くなりゆくやまぎは..."));
                 azusa.draw(&mut surface);
             }
             _ => (),

@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate log;
 
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::BufWriter;
 
@@ -53,14 +54,34 @@ impl From<Color> for Vec4 {
     }
 }
 
+#[derive(Clone,PartialEq,Debug)]
+pub struct UString {
+    data: Vec<u16>
+}
+
+impl UString {
+    pub fn new(string: &str) -> Self {
+        Self {
+            data: string.encode_utf16().chain(std::iter::once(0)).collect::<Vec<u16>>()
+        }
+    }
+}
+
+impl Display for UString {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{}",String::from_utf16(self.data.as_slice()).unwrap())
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 struct Vec4(f64, f64, f64, f64);
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum DrawTarget {
     Clear(Color),
     FillRectangle(Color, Color, u32, u32, u32, u32),
     DrawRectangle(Color, u32, u32, u32, u32, u32),
+    DrawText(Color,UString)
 }
 
 pub trait Surface {
@@ -177,6 +198,9 @@ impl Surface for ImageSurface<'_> {
                                 }
                             }
                         }
+                        DrawTarget::DrawText(color,string) => {
+
+                        }
                     }
                 }
 
@@ -255,6 +279,10 @@ impl Azusa {
             width,
             height,
         ));
+    }
+
+    pub fn draw_text(&mut self,string: UString) {
+        self.ctx.push(DrawTarget::DrawText(self.ctx_color,string));
     }
 
     pub fn draw<T: Surface>(&self, surface: &mut T) {

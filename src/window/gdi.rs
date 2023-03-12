@@ -1,16 +1,11 @@
 use crate::window::Backend;
-use crate::{Color, Vec4};
+use crate::{Color, UString, Vec4};
 
 use std::ffi::{c_int, c_void};
 
-use winapi::shared::windef::{
-    DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, HBITMAP, HDC, HGDIOBJ, HWND, RECT,
-};
-use winapi::um::wingdi::{
-    BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetStockObject,
-    Rectangle, SelectObject, SetDCBrushColor, SetDCPenColor, DC_BRUSH, DC_PEN, RGB, SRCCOPY,
-};
-use winapi::um::winuser::{GetClientRect, GetDC, ReleaseDC, SetProcessDpiAwarenessContext};
+use winapi::shared::windef::{DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, HBITMAP, HDC, HGDIOBJ, HWND, LPRECT, RECT};
+use winapi::um::wingdi::{BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetStockObject, Rectangle, SelectObject, SetDCBrushColor, SetDCPenColor, DC_BRUSH, DC_PEN, RGB, SRCCOPY, SetBkColor, TRANSPARENT, SetBkMode, SetTextColor};
+use winapi::um::winuser::{DrawTextW, DT_WORD_ELLIPSIS, GetClientRect, GetDC, ReleaseDC, SetProcessDpiAwarenessContext};
 
 pub struct GDIBackend {
     hwnd: HWND,
@@ -121,15 +116,15 @@ impl Backend for GDIBackend {
 
     fn draw_rectangle(
         &mut self,
-        _color: Color,
-        _thickness: u32,
+        color: Color,
+        thickness: u32,
         x: f32,
         y: f32,
         width: f32,
         height: f32,
     ) {
-        let color = Vec4::from(self.clear_color);
         let border_color = Vec4::from(color);
+        let color = Vec4::from(self.clear_color);
         unsafe {
             let rect = RECT {
                 left: x as i32,
@@ -152,6 +147,21 @@ impl Backend for GDIBackend {
             SelectObject(self.hdc, GetStockObject(DC_BRUSH as c_int));
 
             Rectangle(self.hdc, rect.left, rect.top, rect.right, rect.bottom);
+        }
+    }
+
+    fn draw_text(&mut self, color: Color,string: UString) {
+        unsafe {
+            let text_color = Vec4::from(color);
+            let color = Vec4::from(self.clear_color);
+            SetBkMode(self.hdc,TRANSPARENT.try_into().unwrap());
+            SetTextColor(self.hdc,RGB(text_color.0 as u8,text_color.1 as u8,text_color.2 as u8));
+            DrawTextW(self.hdc, string.data.as_ptr(), -1, &mut RECT {
+                left: 0,
+                top: 0,
+                right: 300,
+                bottom: 300,
+            }, DT_WORD_ELLIPSIS);
         }
     }
 
