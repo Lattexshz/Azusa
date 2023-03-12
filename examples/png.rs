@@ -18,10 +18,6 @@ fn main() {
     azusa.move_to(5, 5);
     azusa.draw_rectangle(1, 90, 90);
 
-
-    let mut ctx = azusa.get_ctx();
-    println!("{:?}",ctx);
-
     // Performs the drawing scheduled for the context
     azusa.draw(&mut surface);
 }
