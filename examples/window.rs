@@ -52,13 +52,13 @@ fn main() {
                 azusa.clear();
                 azusa.set_source_color(Color::Gray);
                 azusa.move_to(10,10);
-                azusa.draw_text(500,150,UString::new("English"),FontInfo::new(14));
+                azusa.draw_text(500,150,UString::new("English"),FontInfo::new(14,false,false));
                 azusa.move_to(170,10);
-                azusa.draw_text(500,150,UString::new("日本語"),FontInfo::new(14));
+                azusa.draw_text(500,150,UString::new("日本語"),FontInfo::new(14,false,false));
                 azusa.move_to(330,10);
-                azusa.draw_text(500,150,UString::new("汉语"),FontInfo::new(14));
+                azusa.draw_text(500,150,UString::new("汉语"),FontInfo::new(14,false,false));
                 azusa.move_to(490,10);
-                azusa.draw_text(500,150,UString::new("اللغة العربية"),FontInfo::new(14));
+                azusa.draw_text(500,150,UString::new("اللغة العربية"),FontInfo::new(14,false,false));
                 azusa.draw(&mut surface);
             }
             _ => (),

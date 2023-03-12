@@ -80,12 +80,14 @@ impl Display for UString {
 }
 
 #[derive(Clone,Debug,PartialEq)]
-pub struct FontInfo(pub(crate) u32);
+pub struct FontInfo(pub(crate) u32,pub(crate) bool,pub(crate) bool);
 
 impl FontInfo {
-    pub fn new(px:u32) -> Self {
+    pub fn new(px:u32,is_italic: bool,is_under_line: bool) -> Self {
         Self {
-            0:px
+            0:px,
+            1: is_italic,
+            2: is_under_line
         }
     }
 }

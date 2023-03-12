@@ -154,7 +154,7 @@ impl Backend for GDIBackend {
     fn draw_text(&mut self,color: Color,string: UString,info:FontInfo,x:u32,y:u32,width:u32,height:u32) {
         unsafe {
             let text_color = Vec4::from(color);
-            let font = CreateFontW((info.0*2) as c_int, info.0 as c_int, 0, 0, FW_REGULAR, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS , CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_MODERN, null_mut());
+            let font = CreateFontW((info.0*2) as c_int, info.0 as c_int, 0, 0, FW_REGULAR, info.1 as u32, info.2 as u32, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS , CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_MODERN, null_mut());
             SelectObject(self.hdc,font as HGDIOBJ);
             SetBkMode(self.hdc,TRANSPARENT.try_into().unwrap());
             SetTextColor(self.hdc,RGB(text_color.0 as u8,text_color.1 as u8,text_color.2 as u8));
