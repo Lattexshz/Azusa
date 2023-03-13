@@ -11,6 +11,8 @@ pub mod window;
 #[cfg(feature = "web")]
 pub mod web;
 
+pub mod font;
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Color {
     White,
