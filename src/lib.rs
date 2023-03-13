@@ -4,6 +4,7 @@ extern crate log;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::BufWriter;
+use crate::font::FontKind;
 
 #[cfg(feature = "window")]
 pub mod window;
@@ -113,6 +114,7 @@ pub trait Surface {
     fn draw(&mut self, ctx: Vec<DrawTarget>);
     /// Get surface size
     fn get_client_size(&self) -> (u32, u32);
+    fn get_font_kind(&self) -> FontKind;
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
