@@ -1,5 +1,7 @@
 #[cfg(target_os = "windows")]
 mod gdi;
+#[cfg(target_os = "linux")]
+mod xlib;
 
 use crate::{Color, DrawTarget, FontInfo, Surface, UString};
 #[cfg(feature = "window")]
@@ -43,7 +45,10 @@ impl WindowSurface {
             RawWindowHandle::UiKit(_) => return Err(()),
             RawWindowHandle::AppKit(_) => return Err(()),
             RawWindowHandle::Orbital(_) => return Err(()),
-            RawWindowHandle::Xlib(_) => return Err(()),
+            #[cfg(target_os = "linux")]
+            RawWindowHandle::Xlib(handle) => {
+                xlib::XLibBackend::new(handle.window)
+            },
             RawWindowHandle::Xcb(_) => return Err(()),
             RawWindowHandle::Wayland(_) => return Err(()),
             RawWindowHandle::Drm(_) => return Err(()),
